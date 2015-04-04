@@ -28,6 +28,9 @@ Connect the LCD using the following wiring configuration:
 <sup>1</sup> *Pin 1 of the LCD is the right most pin, closest to the edge.*   
 <sup>2</sup> *The Arduino pin numbers shown here are the default ones. You are free to use any of the Arduino's digital pins for LCD communication. This is configured when creating a library instance.*
 
+If you are in desperate need for more free digital pins you can leave LCD pin 2 tied to ground.
+You can do the same with pin 1, but stability of the LCD will suffer if you do so!
+
 ---
 
 ###Geting started with the library
@@ -301,7 +304,7 @@ void sendSafe(unsigned char data);
 Send the given byte to the LCD controller in a safe way by first toggling the /CS pin.
 It is used by the functions of this library when sending commands only.
 By toggling the /CS pin before sending the command we get more relyability, which is especially important when sending command bytes.
-This function assumes that the correct data/command register has already been selected.
+This function assumes that the correct data/command register has already been selected by LCD_RS_ON or LCD_RS_OFF.
 <table>
 <tr><td>data</td><td>The data or command to send to the LCD controller</td></tr>
 </table>
@@ -309,7 +312,7 @@ This function assumes that the correct data/command register has already been se
      
 -----
 ####Colors
-The following predefined color are available
+The following predefined colors are available.
 <table>
 <tr><td>BLACK</td><td>0x000</td></tr>
 <tr><td>BLUE</td><td>0x00F</td></tr>
@@ -324,7 +327,7 @@ The following predefined color are available
      
 -----
 ####Pin toggle functions
-The following functions toggle the control pins of the LCD
+The following functions toggle the control pins of the LCD.
 <table>
 <tr><td>LCD_RS_ON</td><td>Put the LCD in command mode</td></tr>
 <tr><td>LCD_RS_OFF</td><td>Put the LCD in data mode</td></tr>
