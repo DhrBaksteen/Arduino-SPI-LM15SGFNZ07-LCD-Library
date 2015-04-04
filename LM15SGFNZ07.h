@@ -41,7 +41,6 @@ class LM15SGFNZ07 {
 		void drawString(char *str, unsigned char x, unsigned char y, unsigned int color, unsigned int background);
 		void fillRect(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int color);
 		void inverseScreen(bool inverse);
-		void test(unsigned char value);
 		void setContrast(unsigned char contrast);
 		void setInverseLines(unsigned char y, unsigned char height, unsigned char inverseMode);
 		void setLcdOn(bool on);

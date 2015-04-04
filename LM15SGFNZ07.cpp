@@ -3,7 +3,7 @@
  *
  * This library enables you to control an LM15SGFNZ07 LCD module with your Arduino. This updated version of the library
  * supports more of the capabilities of the LCD and runs quicker than the original one. To import this library into your
- * Arduino IDE use the import library function and select the library folder of ZIP file. After importing you can run
+ * Arduino IDE use the import library function and select the library folder or ZIP file. After importing you can run
  * the included demo found under LM15SGFNZ07 of the examples menu to get an understanding of this library's awesome
  * capabilities.
  *
@@ -92,6 +92,7 @@ void LM15SGFNZ07::init(void) {
 	pinMode(LCD_RS, OUTPUT);
 	pinMode(LCD_CS, OUTPUT);
 	pinMode(LCD_SCLK, OUTPUT);
+	pinMode(LCD_RESET, OUTPUT);
 
 	LCD_CS_OFF;
 	LCD_RESET_OFF;
