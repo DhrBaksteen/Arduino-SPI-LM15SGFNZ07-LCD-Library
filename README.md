@@ -14,11 +14,11 @@ Connect the LCD using the following wiring configuration:
 
 | LCD pin   | Arduino pin              |
 |-----------|--------------------------|
-| 1 (/cs)<sup>1</sup>   | 2 (Through 10k resistor)<sup>2</sup> |
-| 2 (/rst)  | 3 (Through 10k resistor)<sup>2</sup> |
+| 1 (/cs)<sup>1</sup>   | 6 (Through 10k resistor)<sup>2</sup> |
+| 2 (/rst)  | 5 (Through 10k resistor)<sup>2</sup> |
 | 3 (rs)    | 4 (Through 10k resistor)<sup>2</sup> |
-| 4 (sclk)  | 5 (Through 10k resistor)<sup>2</sup> |
-| 5 (sdata) | 6 (Through 10k resistor)<sup>2</sup> |
+| 4 (sclk)  | 3 (Through 10k resistor)<sup>2</sup> |
+| 5 (sdata) | 2 (Through 10k resistor)<sup>2</sup> |
 | 6 (+3.3v) | 3.3v |
 | 7 (gnd)   | gnd |
 | 8 (led1)  | 3.3v |
