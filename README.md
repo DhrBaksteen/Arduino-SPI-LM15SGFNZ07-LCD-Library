@@ -2,7 +2,7 @@
 
 This library enables you to control an LM15SGFNZ07 LCD module with your Arduino. The LM15SGFNZ07 is an LCD with a 101x80 pixels resolution, capable of displaying 4096 colors. It is found in Siemens mobile phones (models A65, M55, C60, MC60, S55, A60).
 
-This library is an updated version of the original by Mindogas (https://bitbucket.org/mindogas/lm15sgfnz07) that supports more of the capabilities of the LCD and runs quicker than the original thanks to the use of the Arduino's SPI port. 
+This library is an updated version of the original by Mindogas (https://bitbucket.org/mindogas/lm15sgfnz07) that supports more of the capabilities of the LCD and runs quicker than the original thanks to the use of the Arduino's SPI port for communication. 
 
 To import this library into your Arduino IDE use the import library function and select the library folder or ZIP file. After importing you can run the included demo and PaddleWar! game found under LM15SGFNZ07 of the examples menu to get an understanding of this library's awesome capabilities.
 
@@ -27,6 +27,8 @@ Connect the LCD using the following wiring configuration:
 
 <sup>1</sup> *Pin 1 of the LCD is the right most pin, closest to the edge.*   
 <sup>2</sup> *The Arduino pin numbers shown here are the default ones. You are free to use any of the Arduino's digital pins for LCD communication. This is configured when creating a library instance.*
+
+If you are in desperate need for more free digital pins you can tie LCD pin 1 directly to ground, but stability of the LCD will suffer if you do so!
 
 ---
 
@@ -302,7 +304,7 @@ void sendSafe(unsigned char data);
 Send the given byte to the LCD controller in a safe way by first toggling the /CS pin.
 It is used by the functions of this library when sending commands only.
 By toggling the /CS pin before sending the command we get more relyability, which is especially important when sending command bytes.
-This function assumes that the correct data/command register has already been selected.
+This function assumes that the correct data/command register has already been selected by LCD_RS_ON or LCD_RS_OFF.
 <table>
 <tr><td>data</td><td>The data or command to send to the LCD controller</td></tr>
 </table>
@@ -310,7 +312,7 @@ This function assumes that the correct data/command register has already been se
      
 -----
 ####Colors
-The following predefined color are available
+The following predefined colors are available.
 <table>
 <tr><td>BLACK</td><td>0x000</td></tr>
 <tr><td>BLUE</td><td>0x00F</td></tr>
@@ -325,7 +327,7 @@ The following predefined color are available
      
 -----
 ####Pin toggle functions
-The following functions toggle the control pins of the LCD
+The following functions toggle the control pins of the LCD.
 <table>
 <tr><td>LCD_RS_ON</td><td>Put the LCD in command mode</td></tr>
 <tr><td>LCD_RS_OFF</td><td>Put the LCD in data mode</td></tr>
