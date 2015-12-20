@@ -29,32 +29,28 @@
 
 
 class LM15SGFNZ07 {
-	public:
-		LM15SGFNZ07(byte pinSdata, byte pinSclk, byte pinRs, byte pinReset, byte pinCs);
-		void init(void);
-		void clear(unsigned int color);
-		void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int *bitmap);
-		void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned int *bitmap);
-		void drawLine(unsigned char x1, unsigned char y1, unsigned x2, unsigned char y2, unsigned int color);
-		void drawPixel(unsigned char x, unsigned char y,unsigned int color);
-		void drawRect(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int color);
-		void drawString(char *str, unsigned char x, unsigned char y, unsigned int color, unsigned int background);
-		void fillRect(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int color);
-		void inverseScreen(bool inverse);
-		void setContrast(unsigned char contrast);
-		void setInverseLines(unsigned char y, unsigned char height, unsigned char inverseMode);
-		void setLcdOn(bool on);
-		void setStartLine(unsigned char y);
-		void setWindow(unsigned char x, unsigned char y, unsigned char width, unsigned char height);
-		void send(unsigned char data);
-		void sendSafe(unsigned char data);
+  public:
+    LM15SGFNZ07(byte pinCs, byte pinReset, byte pinRs);
+    void init(void);
+    void clear(unsigned int color);
+    void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int *bitmap);
+    void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned int *bitmap);
+    void drawLine(unsigned char x1, unsigned char y1, unsigned x2, unsigned char y2, unsigned int color);
+    void drawPixel(unsigned char x, unsigned char y,unsigned int color);
+    void drawRect(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int color);
+    void drawString(char *str, unsigned char x, unsigned char y, unsigned int color, unsigned int background);
+    void fillRect(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int color);
+    void inverseScreen(bool inverse);
+    void setContrast(unsigned char contrast);
+    void setInverseLines(unsigned char y, unsigned char height, unsigned char inverseMode);
+    void setLcdOn(bool on);
+    void setStartLine(unsigned char y);
+    void setWindow(unsigned char x, unsigned char y, unsigned char width, unsigned char height);
 
-	private:
-		byte LCD_SDATA;
-		byte LCD_SCLK;
-		byte LCD_RS;
-		byte LCD_RESET;
-		byte LCD_CS;
+  private:
+    byte LCD_CS;
+    byte LCD_RESET;
+    byte LCD_RS;
 };
 
 #endif

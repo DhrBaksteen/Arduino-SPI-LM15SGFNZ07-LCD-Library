@@ -2,10 +2,10 @@
  * Siemens M55 LCD (LM15SGFNZ07) library
  *
  * This library enables you to control an LM15SGFNZ07 LCD module with your Arduino. This updated version of the library
- * supports more of the capabilities of the LCD and runs quicker than the original one. To import this library into your
- * Arduino IDE use the import library function and select the library folder or ZIP file. After importing you can run
- * the included demo found under LM15SGFNZ07 of the examples menu to get an understanding of this library's awesome
- * capabilities.
+ * supports more of the capabilities of the LCD and runs quicker than the original one thanks to using the SPI port for
+ * communication with the LCD. To import this library into your Arduino IDE use the import library function and select
+ * the library folder or ZIP file. After importing you can run the included demo found under LM15SGFNZ07 of the examples
+ * menu to get an understanding of this library's awesome capabilities.
  *
  * Original code by Mindogas 2011. markauskas.mindaugas@gmail.com
  * Adapted by Maarten Janssen in 2015.
@@ -16,11 +16,11 @@
  * The LM15SGFNZ07 is an LCD with a 101x80 pixels resolution, capable of displaying 4096 colors. It is found in Siemens
  * mobile phones (models A65, M55, C60, MC60, S55, A60). Connect the LCD to your Arduino as follows:
  * LCD pin   -->   Arduino pin
- *   1 (/CS)         2 (Through 10k resistor)
- *   2 (/RST)        3 (Through 10k resistor)
- *   3 (RS)          4 (Through 10k resistor)
- *   4 (Sclk)        5 (Through 10k resistor)
- *   5 (Sdata)       6 (Through 10k resistor)
+ *   1 (/CS)         6
+ *   2 (/RST)        5
+ *   3 (RS)          4
+ *   4 (Sclk)        13 (or SPI SCK)
+ *   5 (Sdata)       11 (or SPI MOSI)
  *   6 (+3.3v)       3.3v
  *   7 (GND)         GND
  *   8 (LED1)        3.3v
@@ -33,6 +33,7 @@
  */
 
 
+#include <SPI.h>
 #include <Arduino.h>
 #include <avr/pgmspace.h>
 #include <digitalWriteFast.h>
@@ -40,47 +41,48 @@
 #include "LM15SGFNZ07.h"
 
 
-#define LCD_RS_ON       digitalWriteFast(LCD_RS,HIGH);			// Put LCD in command mode
-#define LCD_RS_OFF      digitalWriteFast(LCD_RS,LOW);			// Put LCD in data mode
-#define LCD_CS_OFF      digitalWriteFast(LCD_CS,HIGH);			// Disable LCD
-#define LCD_CS_ON       digitalWriteFast(LCD_CS,LOW);			// Enable LCD
-#define LCD_RESET_ON    digitalWriteFast(LCD_RESET,LOW);		// Put LCD in reset mode
-#define LCD_RESET_OFF   digitalWriteFast(LCD_RESET,HIGH);		// Put LCD in normal mode
+#define LCD_RS_ON       digitalWriteFast(LCD_RS,HIGH);      // Put LCD in command mode
+#define LCD_RS_OFF      digitalWriteFast(LCD_RS,LOW);     // Put LCD in data mode
+#define LCD_CS_OFF      digitalWriteFast(LCD_CS,HIGH);      // Disable LCD
+#define LCD_CS_ON       digitalWriteFast(LCD_CS,LOW);     // Enable LCD
+#define LCD_RESET_ON    digitalWriteFast(LCD_RESET,LOW);    // Put LCD in reset mode
+#define LCD_RESET_OFF   digitalWriteFast(LCD_RESET,HIGH);   // Put LCD in normal mode
 
 
-const unsigned char initData[139] = {
-	0xF4, 0x90, 0xB3, 0xA0, 0xD0, 0xF0, 0xE2, 0xD4, 0x70, 0x66,
-	0xB2, 0xBA, 0xA1, 0xA3, 0xAB, 0x94, 0x95, 0x95, 0x95, 0xF5,
-	0x90, 0xF1, 0x00, 0x10, 0x22, 0x30, 0x45, 0x50, 0x68, 0x70,
-	0x8A, 0x90, 0xAC, 0xB0, 0xCE, 0xD0, 0xF2, 0x0F, 0x10, 0x20,
-	0x30, 0x43, 0x50, 0x66, 0x70, 0x89, 0x90, 0xAB, 0xB0, 0xCD,
-	0xD0, 0xF3, 0x0E, 0x10, 0x2F, 0x30, 0x40, 0x50, 0x64, 0x70,
-	0x87, 0x90, 0xAA, 0xB0, 0xCB, 0xD0, 0xF4, 0x0D, 0x10, 0x2E,
-	0x30, 0x4F, 0x50, 0xF5, 0x91, 0xF1, 0x01, 0x11, 0x22, 0x31,
-	0x43, 0x51, 0x64, 0x71, 0x86, 0x91, 0xA8, 0xB1, 0xCB, 0xD1,
-	0xF2, 0x0F, 0x11, 0x21, 0x31, 0x42, 0x51, 0x63, 0x71, 0x85,
-	0x91, 0xA6, 0xB1, 0xC8, 0xD1, 0xF3, 0x0B, 0x11, 0x2F, 0x31,
-	0x41, 0x51, 0x62, 0x71, 0x83, 0x91, 0xA4, 0xB1, 0xC6, 0xD1,
-	0xF4, 0x08, 0x11, 0x2B, 0x31, 0x4F, 0x51, 0x80, 0x94, 0xF5,
-	0xA2, 0xF4, 0x60, 0xF0, 0x40, 0x50, 0xC0, 0xF4, 0x70
+const unsigned char initData[139] PROGMEM = {
+  0xF4, 0x90, 0xB3, 0xA0, 0xD0, 0xF0, 0xE2, 0xD4, 0x70, 0x66,
+  0xB2, 0xBA, 0xA1, 0xA3, 0xAB, 0x94, 0x95, 0x95, 0x95, 0xF5,
+  0x90, 0xF1, 0x00, 0x10, 0x22, 0x30, 0x45, 0x50, 0x68, 0x70,
+  0x8A, 0x90, 0xAC, 0xB0, 0xCE, 0xD0, 0xF2, 0x0F, 0x10, 0x20,
+  0x30, 0x43, 0x50, 0x66, 0x70, 0x89, 0x90, 0xAB, 0xB0, 0xCD,
+  0xD0, 0xF3, 0x0E, 0x10, 0x2F, 0x30, 0x40, 0x50, 0x64, 0x70,
+  0x87, 0x90, 0xAA, 0xB0, 0xCB, 0xD0, 0xF4, 0x0D, 0x10, 0x2E,
+  0x30, 0x4F, 0x50, 0xF5, 0x91, 0xF1, 0x01, 0x11, 0x22, 0x31,
+  0x43, 0x51, 0x64, 0x71, 0x86, 0x91, 0xA8, 0xB1, 0xCB, 0xD1,
+  0xF2, 0x0F, 0x11, 0x21, 0x31, 0x42, 0x51, 0x63, 0x71, 0x85,
+  0x91, 0xA6, 0xB1, 0xC8, 0xD1, 0xF3, 0x0B, 0x11, 0x2F, 0x31,
+  0x41, 0x51, 0x62, 0x71, 0x83, 0x91, 0xA4, 0xB1, 0xC6, 0xD1,
+  0xF4, 0x08, 0x11, 0x2B, 0x31, 0x4F, 0x51, 0x80, 0x94, 0xF5,
+  0xA2, 0xF4, 0x60, 0xF0, 0x40, 0x50, 0xC0, 0xF4, 0x70
+};
+
+const unsigned char setupData[19] PROGMEM = {
+  0xF0, 0x81, 0xF4, 0xB3, 0xA0, 0xF0, 0x06, 0x10, 0x20, 0x30,
+  0xF5, 0x0F, 0x1C, 0x2F, 0x34, 0xF0, 0x91, 0xF5, 0x80
 };
 
 
 /**
  * Constructor for the LM15SGFNZ07 library.
  *
- * pinSdata - Arduino pin number connected to LCD's serial data pin (LCD pin 5)
- * pinSclk  - Arduino pin number connected to LCD's serial clock pin (LCD pin 4)
- * pinRs    - Arduino pin number connected to LCD's register select pin (LCD pin 3)
- * pinReset - Arduino pin number connected to LCD's reset pin (LCD pin 2)
  * pinCs    - Arduino pin number connected to LCD's chip select pin (LCD pin 1)
+ * pinReset - Arduino pin number connected to LCD's reset pin (LCD pin 2)
+ * pinRs    - Arduino pin number connected to LCD's register select pin (LCD pin 3)
  */
-LM15SGFNZ07::LM15SGFNZ07(byte pinSdata, byte pinSclk, byte pinRs, byte pinReset, byte pinCs) {
-	this->LCD_SDATA = pinSdata;
-	this->LCD_SCLK  = pinSclk;
-	this->LCD_RS    = pinRs;
-	this->LCD_RESET = pinReset;
-	this->LCD_CS    = pinCs;
+LM15SGFNZ07::LM15SGFNZ07(byte pinCs, byte pinReset, byte pinRs) {
+  this->LCD_CS    = pinCs;
+  this->LCD_RESET = pinReset;
+  this->LCD_RS    = pinRs;
 }
 
 
@@ -88,54 +90,38 @@ LM15SGFNZ07::LM15SGFNZ07(byte pinSdata, byte pinSclk, byte pinRs, byte pinReset,
  * Initialize the LCD.
  */
 void LM15SGFNZ07::init(void) {
-	pinMode(LCD_SDATA, OUTPUT);
-	pinMode(LCD_RS, OUTPUT);
-	pinMode(LCD_CS, OUTPUT);
-	pinMode(LCD_SCLK, OUTPUT);
-	pinMode(LCD_RESET, OUTPUT);
+  SPI.begin();
+  pinMode(LCD_CS, OUTPUT);
+  pinMode(LCD_RESET, OUTPUT);
+  pinMode(LCD_RS, OUTPUT);
 
-	LCD_CS_OFF;
-	LCD_RESET_OFF;
-	LCD_RS_OFF;
-	LCD_RESET_ON;
-	delay(10);
-	LCD_RESET_OFF;
-	delay(10);
-	LCD_RS_ON;
-	LCD_CS_ON;
+  LCD_CS_OFF;
+  LCD_RESET_OFF;
+  LCD_RS_OFF;
+  LCD_RESET_ON;
+  delay(10);
+  LCD_RESET_OFF;
+  delay(10);
+  LCD_RS_ON;
+  LCD_CS_ON;
 
-	for (int j = 0; j < 139; j++) {
-		sendSafe(initData[j]);
-	}
-	delay(1);
-	LCD_CS_OFF;
-	delay(1);
-	LCD_CS_ON;
+  for (int i = 0; i < 139; i ++) {
+    SPI.transfer(pgm_read_byte_near(initData + i));
+  }
 
-	sendSafe(0xF0);
-	sendSafe(0x81);
-	sendSafe(0xF4);
-	sendSafe(0xB3);
-	sendSafe(0xA0);
+  delay(1);
+  LCD_CS_OFF;
+  delay(1);
+  LCD_CS_ON;
 
-	sendSafe(0xF0);
-	sendSafe(0x06);
-	sendSafe(0x10);
-	sendSafe(0x20);
-	sendSafe(0x30);
-	sendSafe(0xF5);
-	sendSafe(0x0F);
-	sendSafe(0x1C);
-	sendSafe(0x2F);
-	sendSafe(0x34);
-	sendSafe(0xF0);
-	sendSafe(0x91);
-	sendSafe(0xF5);
-	sendSafe(0x80);
-	LCD_RS_OFF;
+  for (int i = 0; i < 19; i ++) {
+    SPI.transfer(pgm_read_byte_near(setupData + i));
+  }
 
-	setContrast(0x1A);
-	delay(100);
+  LCD_RS_OFF;
+
+  setContrast(0x1A);
+  delay(100);
 }
 
 
@@ -145,13 +131,13 @@ void LM15SGFNZ07::init(void) {
  * color - 12-bit color value
  */
 void LM15SGFNZ07::clear(unsigned int color) {
-	LCD_CS_ON;
-	setWindow(0, 0, 101, 80);
-	for (int i = 0; i < 8080; i++) {
-		send(color >> 8);
-		send(color & 0xFF);
-	}
-	LCD_CS_OFF;
+  LCD_CS_ON;
+  setWindow(0, 0, 101, 80);
+  for (int i = 0; i < 8080; i++) {
+    SPI.transfer(color >> 8);
+    SPI.transfer(color & 0xFF);
+  }
+  LCD_CS_OFF;
 }
 
 
@@ -165,13 +151,13 @@ void LM15SGFNZ07::clear(unsigned int color) {
  * bitmap - Pointer to the bitmap image
  */
 void LM15SGFNZ07::drawBitmap(unsigned char x, unsigned char y, unsigned char width, unsigned char height, unsigned int *bitmap) {
-	LCD_CS_ON;
-	setWindow(x, y, width, height);
-	for (int i = 0; i < width * height; i ++) {
-		send(bitmap[i] >> 8);
-		send(bitmap[i] & 0xFF);
-	}
-	LCD_CS_OFF;
+  LCD_CS_ON;
+  setWindow(x, y, width, height);
+  for (int i = 0; i < width * height; i ++) {
+    SPI.transfer(bitmap[i] >> 8);
+    SPI.transfer(bitmap[i] & 0xFF);
+  }
+  LCD_CS_OFF;
 }
 
 
@@ -185,14 +171,14 @@ void LM15SGFNZ07::drawBitmap(unsigned char x, unsigned char y, unsigned char wid
  * bitmap - Pointer to the bitmap image
  */
 void LM15SGFNZ07::drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned int *bitmap) {
-	LCD_CS_ON;
-	setWindow(x, y, width, height);
-	for (int i = 0; i < width * height; i ++) {
-		unsigned int data = pgm_read_word_near(bitmap ++);
-		send(data >> 8);
-		send(data & 0xFF);
-	}
-	LCD_CS_OFF;
+  LCD_CS_ON;
+  setWindow(x, y, width, height);
+  for (int i = 0; i < width * height; i ++) {
+    unsigned int data = pgm_read_word_near(bitmap ++);
+    SPI.transfer(data >> 8);
+    SPI.transfer(data & 0xFF);
+  }
+  LCD_CS_OFF;
 }
 
 
@@ -206,53 +192,53 @@ void LM15SGFNZ07::drawBitmap(unsigned char x,unsigned char y, unsigned char widt
  * color - 12-bit color value
  */
 void LM15SGFNZ07::drawLine(unsigned char x1, unsigned char y1, unsigned x2, unsigned char y2, unsigned int color) {
-	LCD_CS_ON;
-	if (y1 == y2) {
-		// Simple solution for horizontal lines.
-		setWindow(x1, y1, abs(x2 - x1) + 1, 1);
-		for (int i = 0; i <= abs(x2 - x1); i ++) {
-			send(color >> 8 );
-			send(color & 0xFF);
-		}
+  LCD_CS_ON;
+  if (y1 == y2) {
+    // Simple solution for horizontal lines.
+    setWindow(x1, y1, abs(x2 - x1) + 1, 1);
+    for (int i = 0; i <= abs(x2 - x1); i ++) {
+      SPI.transfer(color >> 8 );
+      SPI.transfer(color & 0xFF);
+    }
 
-	} else if (x1 == x2) {
-		// Simple solution for vertical lines.
-		setWindow(x1, y1, 1, abs(y2 - y1) + 1);
-		for (int i = 0; i <= abs(y2 - y1); i ++) {
-			send(color >> 8 );
-			send(color & 0xFF);
-		}
+  } else if (x1 == x2) {
+    // Simple solution for vertical lines.
+    setWindow(x1, y1, 1, abs(y2 - y1) + 1);
+    for (int i = 0; i <= abs(y2 - y1); i ++) {
+      SPI.transfer(color >> 8 );
+      SPI.transfer(color & 0xFF);
+    }
 
-	} else {
-		// Draw diagonal line using Bresenham's algorithm.
-		if (x2 < x1) {
-			unsigned char t = x1;
-			x1 = x2;
-			x2 = t;
-		}
+  } else {
+    // Draw diagonal line using Bresenham's algorithm.
+    if (x2 < x1) {
+      unsigned char t = x1;
+      x1 = x2;
+      x2 = t;
+    }
 
-		int dx = abs(x2 - x1);
-		int sx = x1 < x2 ? 1 : -1;
-		int dy = abs(y2 - y1);
-		int sy = y1 < y2 ? 1 : -1;
-		float err = (dx > dy ? dx : -dy) / 2;
-		float e2;
+    int dx = abs(x2 - x1);
+    int sx = x1 < x2 ? 1 : -1;
+    int dy = abs(y2 - y1);
+    int sy = y1 < y2 ? 1 : -1;
+    float err = (dx > dy ? dx : -dy) / 2;
+    float e2;
 
-		for (;;) {
-			drawPixel(x1, y1, color);
-			if (x1 == x2 && y1 == y2) break;
-			e2 = err;
-			if (e2 > -dx) {
-				err -= dy;
-				x1 += sx;
-			}
-			if (e2 < dy) {
-				err += dx;
-				y1 += sy;
-			}
-		}
-	}
-	LCD_CS_OFF;
+    for (;;) {
+      drawPixel(x1, y1, color);
+      if (x1 == x2 && y1 == y2) break;
+      e2 = err;
+      if (e2 > -dx) {
+        err -= dy;
+        x1 += sx;
+      }
+      if (e2 < dy) {
+        err += dx;
+        y1 += sy;
+      }
+    }
+  }
+  LCD_CS_OFF;
 }
 
 
@@ -265,11 +251,11 @@ void LM15SGFNZ07::drawLine(unsigned char x1, unsigned char y1, unsigned x2, unsi
  * color - 12-bit color value
  */
 void LM15SGFNZ07::drawPixel(unsigned char x, unsigned char y, unsigned int color) {
-	LCD_CS_ON;
-	setWindow(x, y, 1, 1);
-	send(color >> 8 );
-	send(color & 0xFF);
-	LCD_CS_OFF;
+  LCD_CS_ON;
+  setWindow(x, y, 1, 1);
+  SPI.transfer(color >> 8 );
+  SPI.transfer(color & 0xFF);
+  LCD_CS_OFF;
 }
 
 
@@ -283,35 +269,35 @@ void LM15SGFNZ07::drawPixel(unsigned char x, unsigned char y, unsigned int color
  * color  - 12-bit color value
  */
 void LM15SGFNZ07::drawRect(unsigned char x, unsigned char y, unsigned char width, unsigned char height, unsigned int color) {
-	LCD_CS_ON;
-	// Top
-	setWindow(x, y, width, 1);
-	for (int i = 0; i < width; i ++) {
-		send(color >> 8);
-		send(color & 0xFF);
-	}
+  LCD_CS_ON;
+  // Top
+  setWindow(x, y, width, 1);
+  for (int i = 0; i < width; i ++) {
+    SPI.transfer(color >> 8);
+    SPI.transfer(color & 0xFF);
+  }
 
-	// Bottom
-	setWindow(x, y + height - 1, width, 1);
-	for (int i = 0; i < width; i ++) {
-		send(color >> 8);
-		send(color & 0xFF);
-	}
+  // Bottom
+  setWindow(x, y + height - 1, width, 1);
+  for (int i = 0; i < width; i ++) {
+    SPI.transfer(color >> 8);
+    SPI.transfer(color & 0xFF);
+  }
 
-	// Left
-	setWindow(x, y, 1, height);
-	for (int i = 0; i < height; i ++) {
-		send(color >> 8);
-		send(color & 0xFF);
-	}
+  // Left
+  setWindow(x, y, 1, height);
+  for (int i = 0; i < height; i ++) {
+    SPI.transfer(color >> 8);
+    SPI.transfer(color & 0xFF);
+  }
 
-	// Right
-	setWindow(x + width - 1, y, 1, height);
-	for (int i = 0; i < height; i ++) {
-		send(color >> 8);
-		send(color & 0xFF);
-	}
-	LCD_CS_OFF;
+  // Right
+  setWindow(x + width - 1, y, 1, height);
+  for (int i = 0; i < height; i ++) {
+    SPI.transfer(color >> 8);
+    SPI.transfer(color & 0xFF);
+  }
+  LCD_CS_OFF;
 }
 
 
@@ -325,31 +311,31 @@ void LM15SGFNZ07::drawRect(unsigned char x, unsigned char y, unsigned char width
  * background - 12-bit background color
  */
 void LM15SGFNZ07::drawString(char *str, unsigned char x, unsigned char y, unsigned int color, unsigned int background) {
-	LCD_CS_ON;
-	int strPos = 0;
+  LCD_CS_ON;
+  int strPos = 0;
 
-	while (str[strPos] != 0) {
-		unsigned int glyphPtr   = (str[strPos] - 32) * 6;
-		unsigned int glyphWidth = pgm_read_byte_near(font + (glyphPtr ++));
+  while (str[strPos] != 0) {
+    unsigned int glyphPtr   = (str[strPos] - 32) * 6;
+    unsigned int glyphWidth = pgm_read_byte_near(font + (glyphPtr ++));
 
-		for (int i = 0; i < glyphWidth; i ++) {
-			setWindow(x ++, y, 1, 8);
-			unsigned char glyphData = pgm_read_byte_near(font + (glyphPtr ++));
+    for (int i = 0; i < glyphWidth; i ++) {
+      setWindow(x ++, y, 1, 8);
+      unsigned char glyphData = pgm_read_byte_near(font + (glyphPtr ++));
 
-			for (unsigned char mask = 0x80; mask; mask >>= 1) {
-				send(glyphData & mask ? color >> 8 : background >> 8);
-				send(glyphData & mask ? color & 0xFF : background & 0xFF);
-			}
-		}
+      for (unsigned char mask = 0x80; mask; mask >>= 1) {
+        SPI.transfer(glyphData & mask ? color >> 8 : background >> 8);
+        SPI.transfer(glyphData & mask ? color & 0xFF : background & 0xFF);
+      }
+    }
 
-		setWindow(x ++, y, 1, 8);
-		for (unsigned char j = 0; j < 8; j ++) {
-			send(background >> 8);
-			send(background & 0xFF);
-		}
-		strPos ++;
-	}
-	LCD_CS_OFF;
+    setWindow(x ++, y, 1, 8);
+    for (unsigned char j = 0; j < 8; j ++) {
+      SPI.transfer(background >> 8);
+      SPI.transfer(background & 0xFF);
+    }
+    strPos ++;
+  }
+  LCD_CS_OFF;
 }
 
 
@@ -363,13 +349,13 @@ void LM15SGFNZ07::drawString(char *str, unsigned char x, unsigned char y, unsign
  * color  - 12-bit color value
  */
 void LM15SGFNZ07::fillRect(unsigned char x, unsigned char y, unsigned char width, unsigned char height, unsigned int color) {
-	LCD_CS_ON;
-	setWindow(x, y, width, height);
-	for (int i = 0; i < width * height; i ++) {
-		send(color >> 8);
-		send(color & 0xFF);
-	}
-	LCD_CS_OFF;
+  LCD_CS_ON;
+  setWindow(x, y, width, height);
+  for (int i = 0; i < width * height; i ++) {
+    SPI.transfer(color >> 8);
+    SPI.transfer(color & 0xFF);
+  }
+  LCD_CS_OFF;
 }
 
 
@@ -379,10 +365,12 @@ void LM15SGFNZ07::fillRect(unsigned char x, unsigned char y, unsigned char width
  * inverse - Turns inverse display on when true.
  */
 void LM15SGFNZ07::inverseScreen(bool inverse) {
-	LCD_RS_ON;
-	sendSafe(0xF0);
-	sendSafe(0x90 | (inverse ? 0x09 : 0x01));
-	LCD_RS_OFF;
+  LCD_RS_ON;
+  LCD_CS_ON;
+  SPI.transfer(0xF0);
+  SPI.transfer(0x90 | (inverse ? 0x09 : 0x01));
+  LCD_CS_OFF;
+  LCD_RS_OFF;
 }
 
 
@@ -392,21 +380,23 @@ void LM15SGFNZ07::inverseScreen(bool inverse) {
  * y           - The row to start inverting
  * height      - The number of rows to invert
  * inverseMode - The inverting function to be used this can be one of the following:
- *					LCD_INVERSE_OFF:   Turns off line inversions
- *					LCD_INVERSE_ON:    Inversed lines are shown in negative
- *					LCD_INVERSE_BLINK: Inversed lines alternate between positive and negative
+ *          LCD_INVERSE_OFF:   Turns off line inversions
+ *          LCD_INVERSE_ON:    Inversed lines are shown in negative
+ *          LCD_INVERSE_BLINK: Inversed lines alternate between positive and negative
  */
 void LM15SGFNZ07::setInverseLines(unsigned char y, unsigned char height, unsigned char inverseMode) {
-	LCD_RS_ON;
-	sendSafe(0xF5);
-	sendSafe(0x40 | (y & 0x0F));
-	sendSafe(0x50 | (y >> 4));
-	sendSafe(0xF5);
-	sendSafe(0x60 | ((y + height - 1) & 0x0F));
-	sendSafe(0x70 | ((y + height - 1) >> 4));
-	sendSafe(0xF5);
-	sendSafe(0x80 | (inverseMode & 0x03));
-	LCD_RS_OFF;
+  LCD_RS_ON;
+  LCD_CS_ON;
+  SPI.transfer(0xF5);
+  SPI.transfer(0x40 | (y & 0x0F));
+  SPI.transfer(0x50 | (y >> 4));
+  SPI.transfer(0xF5);
+  SPI.transfer(0x60 | ((y + height - 1) & 0x0F));
+  SPI.transfer(0x70 | ((y + height - 1) >> 4));
+  SPI.transfer(0xF5);
+  SPI.transfer(0x80 | (inverseMode & 0x03));
+  LCD_CS_OFF;
+  LCD_RS_OFF;
 }
 
 
@@ -416,11 +406,13 @@ void LM15SGFNZ07::setInverseLines(unsigned char y, unsigned char height, unsigne
  * contrast - Contrast value to set in a range from 0 to 127. A good value for this seems to be 0x1A.
  */
 void LM15SGFNZ07::setContrast(unsigned char contrast) {
-	LCD_RS_ON;
-	sendSafe(0xF4);
-	sendSafe(0xB0 | (contrast >> 4));
-	sendSafe(0xA0 | (contrast & 0x0F));
-	LCD_RS_OFF;
+  LCD_RS_ON;
+  LCD_CS_ON;
+  SPI.transfer(0xF4);
+  SPI.transfer(0xB0 | (contrast >> 4));
+  SPI.transfer(0xA0 | (contrast & 0x0F));
+  LCD_CS_OFF;
+  LCD_RS_OFF;
 }
 
 
@@ -430,10 +422,12 @@ void LM15SGFNZ07::setContrast(unsigned char contrast) {
  * on - Turns the LCD on when true and off when false
  */
 void LM15SGFNZ07::setLcdOn(bool on) {
-	LCD_RS_ON;
-	sendSafe(0xF0);
-	sendSafe(0x80 | (on ? 0x01 : 0x00));
-	LCD_RS_OFF;
+  LCD_RS_ON;
+  LCD_CS_ON;
+  SPI.transfer(0xF0);
+  SPI.transfer(0x80 | (on ? 0x01 : 0x00));
+  LCD_CS_OFF;
+  LCD_RS_OFF;
 }
 
 
@@ -443,11 +437,13 @@ void LM15SGFNZ07::setLcdOn(bool on) {
  * y - Line number to be drawn first in a range from 0 to 79
  */
 void LM15SGFNZ07::setStartLine(unsigned char y) {
-	LCD_RS_ON;
-	sendSafe(0xF0);
-	sendSafe(0x40 | (y & 0x0F));
-	sendSafe(0x50 | (y >> 4));
-	LCD_RS_OFF;
+  LCD_RS_ON;
+  LCD_CS_ON;
+  SPI.transfer(0xF0);
+  SPI.transfer(0x40 | (y & 0x0F));
+  SPI.transfer(0x50 | (y >> 4));
+  LCD_CS_OFF;
+  LCD_RS_OFF;
 }
 
 
@@ -460,49 +456,21 @@ void LM15SGFNZ07::setStartLine(unsigned char y) {
  * height - Height of the active drawing area
  */
 void LM15SGFNZ07::setWindow(unsigned char x, unsigned char y, unsigned char width, unsigned char height) {
-	unsigned char xStart = (x << 1) + 6;
-	unsigned char xEnd = ((x + width - 1) << 1) + 7;
-	unsigned char yStart = y;
-	unsigned char yEnd = y + height - 1;
+  unsigned char xStart = (x << 1) + 6;
+  unsigned char xEnd = ((x + width - 1) << 1) + 7;
+  unsigned char yStart = y;
+  unsigned char yEnd = y + height - 1;
 
-	LCD_RS_ON;
-	sendSafe(0xF0);
-	sendSafe(0x00 | (xStart & 0x0F));
-	sendSafe(0x10 | (xStart >> 4));
-	sendSafe(0x20 | (yStart & 0x0F));
-	sendSafe(0x30 | (yStart >> 4));
-	sendSafe(0xF5);
-	sendSafe(0x00 | (xEnd & 0x0F));
-	sendSafe(0x10 | (xEnd >> 4));
-	sendSafe(0x20 | (yEnd & 0x0F));
-	sendSafe(0x30 | (yEnd >> 4));
-	LCD_RS_OFF;
-}
-
-
-/**
- * Send the given data byte to the LCD over serial line. Note that the correct register must be selected beforehand.
- *
- * data - The byte to send to the LCD
- */
-void LM15SGFNZ07::send(unsigned char data) {
-	for (unsigned char mask = 0x80; mask; mask >>= 1) {
-		digitalWriteFast(LCD_SDATA, data & mask ? HIGH : LOW);
-		digitalWriteFast(LCD_SCLK, HIGH);
-		digitalWriteFast(LCD_SCLK, LOW);
-	}
-}
-
-
-/**
- * SendSafe is only used when sending commands to the LCD controller. It toggles the CS line before sending the actual
- * data. This prevents glitches that occur when leaving the CS line active all the time. Pixel data may also be sent
- * using this function but in the interest of speeding things up we don't.
- *
- * data - The byte to send to the LCD
- */
-void LM15SGFNZ07::sendSafe(unsigned char data) {
-	LCD_CS_OFF;
-	LCD_CS_ON;
-	send(data);
+  LCD_RS_ON;
+  SPI.transfer(0xF0);
+  SPI.transfer(0x00 | (xStart & 0x0F));
+  SPI.transfer(0x10 | (xStart >> 4));
+  SPI.transfer(0x20 | (yStart & 0x0F));
+  SPI.transfer(0x30 | (yStart >> 4));
+  SPI.transfer(0xF5);
+  SPI.transfer(0x00 | (xEnd & 0x0F));
+  SPI.transfer(0x10 | (xEnd >> 4));
+  SPI.transfer(0x20 | (yEnd & 0x0F));
+  SPI.transfer(0x30 | (yEnd >> 4));
+  LCD_RS_OFF;
 }

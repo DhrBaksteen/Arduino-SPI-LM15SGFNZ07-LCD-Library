@@ -2,9 +2,9 @@
 
 This library enables you to control an LM15SGFNZ07 LCD module with your Arduino. The LM15SGFNZ07 is an LCD with a 101x80 pixels resolution, capable of displaying 4096 colors. It is found in Siemens mobile phones (models A65, M55, C60, MC60, S55, A60).
 
-This library is an updated version of the original by Mindogas (https://bitbucket.org/mindogas/lm15sgfnz07) that supports more of the capabilities of the LCD and runs quicker than the original. 
+This library is an updated version of the original by Mindogas (https://bitbucket.org/mindogas/lm15sgfnz07) that supports more of the capabilities of the LCD and runs quicker than the original thanks to the use of the Arduino's SPI port. 
 
-To import this library into your Arduino IDE use the import library function and select the library folder or ZIP file. After importing you can run the included demo found under LM15SGFNZ07 of the examples menu to get an understanding of this library's awesome capabilities.
+To import this library into your Arduino IDE use the import library function and select the library folder or ZIP file. After importing you can run the included demo and PaddleWar! game found under LM15SGFNZ07 of the examples menu to get an understanding of this library's awesome capabilities.
 
 ---
 
@@ -14,11 +14,11 @@ Connect the LCD using the following wiring configuration:
 
 | LCD pin   | Arduino pin              |
 |-----------|--------------------------|
-| 1 (/cs)<sup>1</sup>   | 2 (Through 10k resistor)<sup>2</sup> |
-| 2 (/rst)  | 3 (Through 10k resistor)<sup>2</sup> |
-| 3 (rs)    | 4 (Through 10k resistor)<sup>2</sup> |
-| 4 (sclk)  | 5 (Through 10k resistor)<sup>2</sup> |
-| 5 (sdata) | 6 (Through 10k resistor)<sup>2</sup> |
+| 1 (/cs)<sup>1</sup>   | 6<sup>2</sup> |
+| 2 (/rst)  | 5<sup>2</sup> |
+| 3 (rs)    | 4<sup>2</sup> |
+| 4 (sclk)  | 13 (or SPI SCK)<sup>2</sup> |
+| 5 (sdata) | 11 (or SPI MOSI)<sup>2</sup> |
 | 6 (+3.3v) | 3.3v |
 | 7 (gnd)   | gnd |
 | 8 (led1)  | 3.3v |
@@ -39,9 +39,10 @@ This puts the LCD in a ready state (you will probably see some garbage on screen
 See below for a boilerplate example or try the demo by selecting it from the Arduino IDE's examples menu.
 
 ```C
+#include <SPI.h>
 #include <LM15SGFNZ07.h>
 
-LM15SGFNZ07 lcd(2, 3, 4, 5, 6);   // Create lcd instance and set pin configuration.
+LM15SGFNZ07 lcd(6, 5, 4);   // Create lcd instance and set pin configuration.
 
 void setup() {
   lcd.init();                     // Initialize lcd.

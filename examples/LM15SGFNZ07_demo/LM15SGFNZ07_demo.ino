@@ -9,11 +9,11 @@
  * The LM15SGFNZ07 is an LCD with a 101x80 pixels resolution, capable of displaying 4096 colors. It is found in Siemens
  * mobile phones (models A65, M55, C60, MC60, S55, A60). Connect the LCD to your Arduino as follows:
  * LCD pin   -->   Arduino pin
- *   1 (/CS)        2 (Through 10k resistor)
- *   2 (/RST)       3 (Through 10k resistor)
- *   3 (RS)         4 (Through 10k resistor)
- *   4 (Sclk)       5 (Through 10k resistor)
- *   5 (Sdata)      6 (Through 10k resistor)
+ *   1 (/CS)        6
+ *   2 (/RST)       5
+ *   3 (RS)         4
+ *   4 (Sclk)       13 (or SPI SCK)
+ *   5 (Sdata)      11 (or SPI MOSI)
  *   6 (+3.3v)      3.3v
  *   7 (GND)        GND
  *   8 (LED1)       3.3v
@@ -21,10 +21,11 @@
  *  10 (LED2)       3.3v
  */
 
+#include <SPI.h>
 #include <LM15SGFNZ07.h>
 #include "icon.h"
 
-LM15SGFNZ07 lcd(2,3,4,5,6);
+LM15SGFNZ07 lcd(6, 5, 4);
 
 void setup()
 {
