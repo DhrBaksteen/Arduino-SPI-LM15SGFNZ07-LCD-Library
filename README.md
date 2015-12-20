@@ -74,15 +74,13 @@ Below are the functions available in this library.
 -----
 ####Constructor
 ```C
-LM15SGFNZ07(byte pinSdata, byte pinSclk, byte pinRs, byte pinReset, byte pinCs);
+LM15SGFNZ07(byte pinCs, byte pinReset, byte pinRs);
 ```
 Create an instance of the LCD driver and set pin configuration
 <table>
-<tr><td>pinSdata</td><td>Arduino pin number connected to LCD's serial data pin (LCD pin 5)</td></tr>
-<tr><td>pinSclk</td><td>Arduino pin number connected to LCD's serial clock pin (LCD pin 4)</td></tr>     
-<tr><td>pinRs</td><td>Arduino pin number connected to LCD's register select pin (LCD pin 3)</td></tr>
-<tr><td>pinReset</td><td>Arduino pin number connected to LCD's reset pin (LCD pin 2)</td></tr>
 <tr><td>pinCs</td><td>Arduino pin number connected to LCD's chip select pin (LCD pin 1)</td></tr>
+<tr><td>pinReset</td><td>Arduino pin number connected to LCD's reset pin (LCD pin 2)</td></tr>
+<tr><td>pinRs</td><td>Arduino pin number connected to LCD's register select pin (LCD pin 3)</td></tr>
 </table>
      
      
@@ -109,8 +107,8 @@ Clears the screen with the given color value.
 -----
 ####drawBitmap
 ```C
-void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int *bitmap);
-void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned int *bitmap);
+void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned short *bitmap);
+void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned short *bitmap);
 ```
 Draw a bitmap onto the screen. 
 The bitmap can either be stored locally in SRAM or in program memory.
@@ -289,32 +287,6 @@ Both width and height wrap around when more data is sent than fit into the area.
 <tr><td>y</td><td>Y coordinate of the top edge of the active area</td></tr>
 <tr><td>width</td><td>Width of the area</td></tr>
 <tr><td>height</td><td>Height of the area</td></tr>
-</table>
-     
-     
------
-####send
-```C
-void send(unsigned char data);
-```
-Send the given byte to the LCD controller.
-This function assumes that the correct data/command register has already been selected.
-<table>
-<tr><td>data</td><td>The data or command to send to the LCD controller</td></tr>
-</table>
-     
-     
------
-####sendSafe
-```C
-void sendSafe(unsigned char data);
-```
-Send the given byte to the LCD controller in a safe way by first toggling the /CS pin.
-It is used by the functions of this library when sending commands only.
-By toggling the /CS pin before sending the command we get more relyability, which is especially important when sending command bytes.
-This function assumes that the correct data/command register has already been selected by LCD_RS_ON or LCD_RS_OFF.
-<table>
-<tr><td>data</td><td>The data or command to send to the LCD controller</td></tr>
 </table>
      
      
