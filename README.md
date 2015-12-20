@@ -28,8 +28,6 @@ Connect the LCD using the following wiring configuration:
 <sup>1</sup> *Pin 1 of the LCD is the right most pin, closest to the edge.*   
 <sup>2</sup> *The Arduino pin numbers shown here are the default ones. You are free to use any of the Arduino's digital pins for LCD communication. This is configured when creating a library instance.*
 
-If you are in desperate need for more free digital pins you can tie LCD pin 1 directly to ground, but stability of the LCD will suffer if you do so!
-
 ---
 
 ###Included examples
