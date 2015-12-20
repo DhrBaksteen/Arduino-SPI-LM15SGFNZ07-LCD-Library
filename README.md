@@ -32,6 +32,15 @@ If you are in desperate need for more free digital pins you can tie LCD pin 1 di
 
 ---
 
+###Included examples
+
+The library comes with two examples:  
+* A showcase of the library functions.  
+* The game PaddleWar. This is the same PaddleWar game as included in the Commander Keen games. You play a game of ping pong against the Arduino and try to be the first to score 21 points. To play the game connect a potentiometer between pins A0, +5v and GND and a small speaker between pins 7 and GND. The game will start automatically when you power up the Arduino. Use the potentiometer to move wour paddle and beat the other player. The first player to reach 21 points wins and the game ends. Reset your Arduino to play again.
+![PaddleWar wiring diagram](/paddlewar_diagram.png)
+
+---
+
 ###Geting started with the library
 
 To get started be sure to first import the LM15SGFNZ07 library into your Arduino project. 
