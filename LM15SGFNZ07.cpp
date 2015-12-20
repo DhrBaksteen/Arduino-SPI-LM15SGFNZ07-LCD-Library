@@ -120,7 +120,7 @@ void LM15SGFNZ07::init(void) {
 
   LCD_RS_OFF;
 
-  setContrast(0x18);
+  setContrast(0x1A);
   delay(100);
 }
 
