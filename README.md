@@ -17,8 +17,8 @@ Connect the LCD using the following wiring configuration:
 | 1 (/cs)<sup>1</sup>   | 6<sup>2</sup> |
 | 2 (/rst)  | 5<sup>2</sup> |
 | 3 (rs)    | 4<sup>2</sup> |
-| 4 (sclk)  | 13 (or SPI SCK)<sup>2</sup> |
-| 5 (sdata) | 11 (or SPI MOSI)<sup>2</sup> |
+| 4 (sclk)  | 13 (or SPI SCK) |
+| 5 (sdata) | 11 (or SPI MOSI) |
 | 6 (+3.3v) | 3.3v |
 | 7 (gnd)   | gnd |
 | 8 (led1)  | 3.3v |
