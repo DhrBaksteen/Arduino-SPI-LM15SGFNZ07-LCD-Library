@@ -150,7 +150,7 @@ void LM15SGFNZ07::clear(unsigned int color) {
  * height - Height of the bitmap
  * bitmap - Pointer to the bitmap image
  */
-void LM15SGFNZ07::drawBitmap(unsigned char x, unsigned char y, unsigned char width, unsigned char height, unsigned int *bitmap) {
+void LM15SGFNZ07::drawBitmap(unsigned char x, unsigned char y, unsigned char width, unsigned char height, unsigned short *bitmap) {
   LCD_CS_ON;
   setWindow(x, y, width, height);
   for (int i = 0; i < width * height; i ++) {
@@ -170,7 +170,7 @@ void LM15SGFNZ07::drawBitmap(unsigned char x, unsigned char y, unsigned char wid
  * height - Height of the bitmap
  * bitmap - Pointer to the bitmap image
  */
-void LM15SGFNZ07::drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned int *bitmap) {
+void LM15SGFNZ07::drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned short *bitmap) {
   LCD_CS_ON;
   setWindow(x, y, width, height);
   for (int i = 0; i < width * height; i ++) {
