@@ -1,4 +1,4 @@
-#LM15SGFNZ07 LCD Library for Arduino
+# LM15SGFNZ07 LCD Library for Arduino
 
 This library enables you to control an LM15SGFNZ07 LCD module with your Arduino. The LM15SGFNZ07 is an LCD with a 101x80 pixels resolution, capable of displaying 4096 colors. It is found in Siemens mobile phones (models A65, M55, C60, MC60, S55, A60).
 
@@ -8,7 +8,7 @@ To import this library into your Arduino IDE use the import library function and
 
 ---
 
-###Connecting the LCD to the Arduino
+### Connecting the LCD to the Arduino
 
 Connect the LCD using the following wiring configuration:
 
@@ -30,7 +30,7 @@ Connect the LCD using the following wiring configuration:
 
 ---
 
-###Included examples
+### Included examples
 
 The library comes with two examples:  
 * A showcase of the library functions.  
@@ -40,7 +40,7 @@ The library comes with two examples:
 
 ---
 
-###Geting started with the library
+### Geting started with the library
 
 To get started be sure to first import the LM15SGFNZ07 library into your Arduino project. 
 You then need to create an instance of the LCD driver and setup the pin configuration.
@@ -67,12 +67,12 @@ void loop() {
 
 ---
 
-###Functions reference
+### Functions reference
 Below are the functions available in this library.
      
      
 -----
-####Constructor
+#### Constructor
 ```C
 LM15SGFNZ07(byte pinCs, byte pinReset, byte pinRs);
 ```
@@ -85,7 +85,7 @@ Create an instance of the LCD driver and set pin configuration
      
      
 -----
-####init
+#### init
 ```C
 void init(void);
 ```
@@ -94,7 +94,7 @@ This function must always be called before sending any subsequent commands.
      
      
 -----
-####clear
+#### clear
 ```C
 void clear(unsigned int color);
 ```
@@ -105,7 +105,7 @@ Clears the screen with the given color value.
      
      
 -----
-####drawBitmap
+#### drawBitmap
 ```C
 void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned short *bitmap);
 void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned short *bitmap);
@@ -123,7 +123,7 @@ Bitmap data must be stored as a one-dimensional array of 16-bit integers where e
      
      
 -----
-####drawLine
+#### drawLine
 ```C
 void drawLine(unsigned char x1, unsigned char y1, unsigned x2, unsigned char y2, unsigned int color);
 ```
@@ -138,7 +138,7 @@ Draw a line between two points in the given color.
      
      
 -----
-####drawPixel
+#### drawPixel
 ```C
 void drawPixel(unsigned char x, unsigned char y,unsigned int color);
 ```
@@ -151,7 +151,7 @@ Place a single pixel on screen.
      
      
 -----
-####drawRect
+#### drawRect
 ```C
 void drawRect(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int color);
 ```
@@ -166,7 +166,7 @@ Draw a rectangle on screen in the given color.
      
      
 -----
-####drawString
+#### drawString
 ```C
 void drawString(char *str, unsigned char x, unsigned char y, unsigned int color, unsigned int background);
 ```
@@ -189,7 +189,7 @@ Glyphs that are less than 5 columns wide must be padded so that each glyph takes
      
      
 -----
-####fillRect
+#### fillRect
 ```C
 void fillRect(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int color);
 ```
@@ -204,7 +204,7 @@ Draws a filled rectangle.
      
      
 -----
-####inverseScreen
+#### inverseScreen
 ```C
 void inverseScreen(bool inverse);
 ```
@@ -216,7 +216,7 @@ This can be useful to briefly flash the screen to get a users attention.
      
      
 -----
-####setContrast
+#### setContrast
 ```C
 void setContrast(unsigned char contrast);
 ```
@@ -228,7 +228,7 @@ A good contrast value seems to be 0x1A, which is also set as default by the init
      
      
 -----
-####setInverseLines
+#### setInverseLines
 ```C
 void setInverseLines(unsigned char y, unsigned char height, unsigned char inverseMode);
 ```
@@ -250,7 +250,7 @@ Three inverting modes are available:
      
      
 -----
-####setLcdOn
+#### setLcdOn
 ```C
 void setLcdOn(bool on);
 ```
@@ -263,7 +263,7 @@ When the screen is switched off the content is preserved.
      
      
 -----
-####setStartLine
+#### setStartLine
 ```C
 void setStartLine(unsigned char y);
 ```
@@ -275,7 +275,7 @@ After line 79 the display wraps around to line 0.
      
     
 -----
-####setWindow
+#### setWindow
 ```C
 void setWindow(unsigned char x, unsigned char y, unsigned char width, unsigned char height);
 ```
@@ -291,7 +291,7 @@ Both width and height wrap around when more data is sent than fit into the area.
      
      
 -----
-####Colors
+#### Colors
 The following predefined colors are available.
 <table>
 <tr><td>BLACK</td><td>0x000</td></tr>
@@ -306,7 +306,7 @@ The following predefined colors are available.
      
      
 -----
-####Pin toggle functions
+#### Pin toggle functions
 The following functions toggle the control pins of the LCD.
 <table>
 <tr><td>LCD_RS_ON</td><td>Put the LCD in command mode</td></tr>
