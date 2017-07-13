@@ -160,6 +160,27 @@ void LM15SGFNZ07::drawBitmap(unsigned char x, unsigned char y, unsigned char wid
   LCD_CS_OFF;
 }
 
+/**
+ * Draw a bitmap from a continuous 8-bit array onto the screen at the given position.
+ *
+ * x      - Left coordinate
+ * y      - Top coordinate
+ * width  - Width of the bitmap
+ * height - Height of the bitmap
+ * bitmap - Pointer to the bitmap image
+ */
+void LM15SGFNZ07::drawBitmap(unsigned char x, unsigned char y, unsigned char width, unsigned char height, unsigned char *bitmap) {
+  LCD_CS_ON;
+  setWindow(x, y, width, height);
+  unsigned int i2 = 0;
+  for (unsigned int i = 0; i < width * height * 15; i += 30) {
+    SPI.transfer(bitmap[i2] >> 4);
+    SPI.transfer((bitmap[i2 ++] << 4) | (bitmap[i2] >> 4));
+    SPI.transfer(bitmap[i2 ++] & 0x0F);
+    SPI.transfer(bitmap[i2 ++]);
+  }
+  LCD_CS_OFF;
+}
 
 /**
  * Draw a bitmap stored in progam memory onto the screen at the given position.
@@ -177,6 +198,29 @@ void LM15SGFNZ07::drawBitmap(unsigned char x,unsigned char y, unsigned char widt
     unsigned int data = pgm_read_word_near(bitmap ++);
     SPI.transfer(data >> 8);
     SPI.transfer(data & 0xFF);
+  }
+  LCD_CS_OFF;
+}
+
+/**
+ * Draw a bitmap from a continuous 8-bit array stored in program memory onto the screen at the given position.
+ *
+ * x      - Left coordinate
+ * y      - Top coordinate
+ * width  - Width of the bitmap
+ * height - Height of the bitmap
+ * bitmap - Pointer to the bitmap image
+ */
+void LM15SGFNZ07::drawBitmap(unsigned char x, unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned char *bitmap) {
+  LCD_CS_ON;
+  setWindow(x, y, width, height);
+  for (unsigned int i = 0; i < width * height * 15; i += 30) {
+    unsigned char p1 = pgm_read_byte_near(bitmap ++);
+    SPI.transfer(p1 >> 4);
+    unsigned char p2 = pgm_read_byte_near(bitmap ++);
+    SPI.transfer((p1 << 4) | (p2 >> 4));
+    SPI.transfer(p2 & 0x0F);
+    SPI.transfer(pgm_read_byte_near(bitmap ++));
   }
   LCD_CS_OFF;
 }
