@@ -34,7 +34,9 @@ class LM15SGFNZ07 {
     void init(void);
     void clear(unsigned int color);
     void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned short *bitmap);
+    void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned char *bitmap);
     void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned short *bitmap);
+    void drawBitmap(unsigned char x,unsigned char y, unsigned char width, unsigned char height, const PROGMEM unsigned char *bitmap);
     void drawLine(unsigned char x1, unsigned char y1, unsigned x2, unsigned char y2, unsigned int color);
     void drawPixel(unsigned char x, unsigned char y,unsigned int color);
     void drawRect(unsigned char x,unsigned char y, unsigned char width, unsigned char height, unsigned int color);
